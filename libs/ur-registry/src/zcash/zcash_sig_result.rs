@@ -14,6 +14,7 @@
 //! correlation, supported versions, unique ids, pool validity, action-index
 //! bounds, and signature length.
 
+use super::cbor_helpers::{reject_duplicate_key, require_key};
 use crate::{
     registry_types::{RegistryType, ZCASH_SIG_RESULT},
     traits::{MapSize, RegistryItem},
@@ -52,34 +53,6 @@ const SIGS: u8 = 2;
 const POOL: u8 = 1;
 const ACTION_INDEX: u8 = 2;
 const SIG: u8 = 3;
-
-/// Rejects a duplicate CBOR map key, recording each seen key.
-fn reject_duplicate_key(
-    seen_keys: &mut Vec<u8>,
-    key: u8,
-    d: &Decoder<'_>,
-    message: &'static str,
-) -> Result<(), minicbor::decode::Error> {
-    if seen_keys.contains(&key) {
-        return Err(minicbor::decode::Error::message(message).at(d.position()));
-    }
-    seen_keys.push(key);
-    Ok(())
-}
-
-/// Requires that a CBOR map key was present, erroring with `message` otherwise.
-fn require_key(
-    seen_keys: &[u8],
-    key: u8,
-    d: &Decoder<'_>,
-    message: &'static str,
-) -> Result<(), minicbor::decode::Error> {
-    if seen_keys.contains(&key) {
-        Ok(())
-    } else {
-        Err(minicbor::decode::Error::message(message).at(d.position()))
-    }
-}
 
 /// A signatures-only response to a Zcash signing batch: a version, the request
 /// id it answers, and one [`ZcashMsgSig`] per signed message.
@@ -507,9 +480,10 @@ mod tests {
 
         let err = ZcashSigResult::try_from(missing_action_index).unwrap_err();
 
-        assert!(err
-            .to_string()
-            .contains("missing zcash-action-sig action index"));
+        assert!(
+            err.to_string()
+                .contains("missing zcash-action-sig action index")
+        );
     }
 
     #[test]
