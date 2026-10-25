@@ -18,8 +18,8 @@ jobs:
         runs-on: macos-latest
         steps:
             - name: Checkout sources
-              uses: actions/checkout@v3
-            - uses: actions-rs/toolchain@v1
+              uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3
+            - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1
               with:
                 toolchain: nightly-2025-05-01
                 override: true
@@ -39,13 +39,13 @@ jobs:
                 echo "XCFramework Checksum: $XCF_CHECKSUM" >> $GITHUB_STEP_SUMMARY
                 echo "FRAMEWORK_CHECKSUM=$XCF_CHECKSUM" >> $GITHUB_OUTPUT
             - name: Attach artifact
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
               with:
                 name: URRegistryFFI.xcframework.zip
                 path: URRegistryFFI.xcframework.zip
             - name: Upload XCFramework to Release
               if: github.ref_type == 'tag'
-              uses: svenstaro/upload-release-action@2.6.0
+              uses: svenstaro/upload-release-action@58d525808845e4c8ff229ea1d5d7c496504a79bc # 2.6.0
               with:
                 file: URRegistryFFI.xcframework.zip
                 asset_name: URRegistryFFI.xcframework.zip
